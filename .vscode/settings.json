@@ -5,7 +5,7 @@
   "idf.openOcdConfigs": [
     "board/esp32c3-builtin.cfg"
   ],
-  "idf.portWin": "detect",
+  "idf.portWin": "COM7",
   "idf.toolsPathWin": "C:\\Users\\Bertrand\\.espressif",
   "idf.customExtraVars": {
     "IDF_TARGET": "esp32c3"
@@ -15,5 +15,6 @@
     "--background-index",
     "--query-driver=**",
     "--compile-commands-dir=h:\\PROJETS\\LORA STICK\\PROGRAMME\\firmware_loratube\\build"
-  ]
+  ],
+  "idf.flashType": "UART"
 }

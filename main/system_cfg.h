@@ -38,12 +38,24 @@ extern "C" {
 #define CFG_FRAM_ADDR7      (0x50u)
 #endif
 
+#ifndef PCB_VERSION
+#define PCB_VERSION         (4)
+#endif
+
 
 // ---- I2C bus wiring (board) ----
+#ifndef CFG_I2C_PORT
 #define CFG_I2C_PORT        (I2C_NUM_0)
+#endif
+#ifndef CFG_I2C_SDA_GPIO
 #define CFG_I2C_SDA_GPIO    (GPIO_NUM_8)
+#endif
+#ifndef CFG_I2C_SCL_GPIO
 #define CFG_I2C_SCL_GPIO    (GPIO_NUM_9)
+#endif
+#ifndef CFG_I2C_CLK_HZ
 #define CFG_I2C_CLK_HZ      (400000u)      // si tu considères que c'est imposé par ton HW
+#endif
 
 // -------------------------
 // Frozen hardware config

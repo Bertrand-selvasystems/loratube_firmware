@@ -38,3 +38,8 @@
 
 #define TASK_PRIO_I2C           (5)
 #define TASK_STACK_I2C          (2048)
+
+#define FIRMWARE_VERSION        (1)
+
+// profondeur de la queue pour les logs
+#define SYS_Q_LOG_DEPTH          8

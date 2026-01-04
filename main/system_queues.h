@@ -38,11 +38,14 @@
 extern "C" {
 #endif
 
+extern QueueHandle_t g_q_log;
+
+esp_err_t system_queues_init(void);
+void      system_queues_deinit(void);
+void system_queues_dump(void);
+
 // extern QueueHandle_t q_measure_latest;   // depth=1, overwrite
 // extern QueueHandle_t q_radio_cmd;        // depth>1, FIFO
-
-// esp_err_t system_queues_init(void);
-// void      system_queues_deinit(void);
 // void      system_queues_dump(void);
 
 #ifdef __cplusplus

@@ -21,6 +21,21 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+typedef enum {
+    LOG_CMD_BOOT_BANNER = 0,
+    LOG_CMD_ACQ_START,
+} log_cmd_t;
+
+typedef struct {
+    log_cmd_t cmd;
+    uint32_t  arg_u32;   // optionnel (ex: code, compteur, etc.)
+} log_msg_t;
+
+
+
+
+
+
 // typedef struct {
 //     float value;
 //     uint32_t t_ms;
