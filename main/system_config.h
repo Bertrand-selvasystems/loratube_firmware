@@ -43,3 +43,8 @@
 
 // profondeur de la queue pour les logs
 #define SYS_Q_LOG_DEPTH          8
+// profondeur de la queue pour le port I2C
+#define SYS_Q_I2C_CMD_DEPTH  8
+
+#define SYS_TASK_I2C_STACK  2048
+#define SYS_TASK_I2C_PRIO   6

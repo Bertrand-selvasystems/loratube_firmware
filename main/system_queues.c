@@ -7,10 +7,11 @@
 #include "system_config.h"
 #include "esp_log.h"
 #include "system_config.h"
-
+#include "task_i2c_types.h"
 
 static const char *TAG = "SYS_QUEUES";
 
+QueueHandle_t g_q_i2c_cmd;
 QueueHandle_t g_q_log = NULL;
 
 esp_err_t system_queues_init(void)
@@ -19,6 +20,10 @@ esp_err_t system_queues_init(void)
 
     g_q_log = xQueueCreate(SYS_Q_LOG_DEPTH, sizeof(log_msg_t));
     if (!g_q_log) goto oom;
+
+
+    if (g_q_i2c_cmd) return ESP_ERR_INVALID_STATE;
+    g_q_i2c_cmd = xQueueCreate(SYS_Q_I2C_CMD_DEPTH, sizeof(i2c_cmd_t));
 
     system_queues_dump();
     return ESP_OK;
@@ -31,6 +36,7 @@ oom:
 void system_queues_deinit(void)
 {
     if (g_q_log) { vQueueDelete(g_q_log); g_q_log = NULL; }
+    if (g_q_i2c_cmd) { vQueueDelete(g_q_i2c_cmd); g_q_i2c_cmd = NULL; }
 }
 
 void system_queues_dump(void)
@@ -39,15 +45,24 @@ void system_queues_dump(void)
         ESP_LOGW(TAG, "g_q_log=NULL");
         return;
     }
-
-    const UBaseType_t waiting = uxQueueMessagesWaiting(g_q_log);
-    const UBaseType_t spaces  = uxQueueSpacesAvailable(g_q_log);
+    if (!g_q_i2c_cmd) {
+        ESP_LOGW(TAG, "g_q_i2c_cmd=NULL");
+        return;
+    }
 
     ESP_LOGI(TAG,
              "g_q_log=%p item=%u depth=%u waiting=%u free=%u",
              (void*)g_q_log,
              (unsigned)sizeof(log_msg_t),
              (unsigned)SYS_Q_LOG_DEPTH,
-             (unsigned)waiting,
-             (unsigned)spaces);
+             (unsigned)uxQueueMessagesWaiting(g_q_log),
+             (unsigned)uxQueueSpacesAvailable(g_q_log));
+
+        ESP_LOGI(TAG, "g_q_i2c_cmd=%p item=%u depth=%u waiting=%u free=%u",
+             (void*)g_q_i2c_cmd,
+             (unsigned)sizeof(i2c_cmd_t),
+             (unsigned)SYS_Q_I2C_CMD_DEPTH,
+             (unsigned)uxQueueMessagesWaiting(g_q_i2c_cmd),
+             (unsigned)uxQueueSpacesAvailable(g_q_i2c_cmd));
+
 }

@@ -8,6 +8,7 @@
 #include "system_state.h"
 #include "system_faults.h"
 #include "system_state.h"
+#include "system_diag.h"
 
 #include "task_log.h"
 #include "API_display.h"
@@ -44,6 +45,8 @@ static void start_application_tasks(void)
 void initialisation_start(void)
 {
     ESP_LOGI(TAG, "Boot: initialisation_start()");
+
+    system_diag_boot_dump();
 
     // 0) Optional: frozen config sanity checks (if you have them)
     // system_cfg_sanity_check();  // keep it NO FreeRTOS inside

@@ -39,6 +39,7 @@ extern "C" {
 #endif
 
 extern QueueHandle_t g_q_log;
+extern QueueHandle_t g_q_i2c_cmd;
 
 esp_err_t system_queues_init(void);
 void      system_queues_deinit(void);
