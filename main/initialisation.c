@@ -12,6 +12,7 @@
 
 #include "task_log.h"
 #include "API_display.h"
+#include "task_i2c.h"
 
 #if FEATURE_SELFTEST
 #include "test_selftest.h"
@@ -28,6 +29,9 @@ static void start_service_tasks(void)
 {
     // Add all "service" tasks here (log, watchdog, telemetry, etc.)
     task_log_start();
+
+    // I2C dispatcher must exist before any module tries to use I2C.
+    task_i2c_start();
 
     // Example:
     // task_watchdog_start();
