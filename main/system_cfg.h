@@ -41,12 +41,31 @@ extern "C" {
 #define CFG_I2C_SCL_GPIO    (GPIO_NUM_9)
 #define CFG_I2C_CLK_HZ      (400000u)      // si tu considères que c'est imposé par ton HW
 
+// ---- PCA9536 wiring (frozen) ----
+#define HW_PCA_PIN_E22   0
+#define HW_PCA_PIN_LED1  1
+#define HW_PCA_PIN_LED2  2
+#define HW_PCA_PIN_BUCK  3
+
+
+// ---- PCA9536 logical wiring (frozen) ----
+typedef struct {
+    uint8_t pin_e22;   // 0..3
+    uint8_t pin_led1;  // 0..3
+    uint8_t pin_led2;  // 0..3
+    uint8_t pin_buck;  // 0..3
+    uint8_t boot_out4; // only low 4 bits
+} pca9536_map_t;
+
 // -------------------------
 // Frozen hardware config
 // -------------------------
 typedef struct {
     // ---- I2C bus wiring ----
     i2c_bus_cfg_t g_i2c0_cfg;
+
+    // ---- PCA9536 mapping ----
+    pca9536_map_t pca9536;
 
     // ---- I2C slave addresses ----
     uint8_t    pca9536_addr7;

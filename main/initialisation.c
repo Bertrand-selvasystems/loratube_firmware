@@ -13,10 +13,11 @@
 #include "task_log.h"
 #include "API_display.h"
 #include "task_i2c.h"
+#include "task_pca.h"
+#include "api_pca.h"
 
-#if FEATURE_SELFTEST
-#include "test_selftest.h"
-#endif
+#define FEATURE_SELFTEST 1
+
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -32,6 +33,12 @@ static void start_service_tasks(void)
 
     // I2C dispatcher must exist before any module tries to use I2C.
     task_i2c_start();
+
+    // PCA owner task (depends on I2C owner)
+    task_pca_start(CFG_PCA9536_ADDR7);   // ou 0x41, voir plus bas
+
+    // Bind API -> PCA queue
+    api_pca_bind_queue(task_pca_get_queue());
 
     // Example:
     // task_watchdog_start();
@@ -69,20 +76,21 @@ void initialisation_start(void)
     // 4) Optional self-test (DEV only)
 #if FEATURE_SELFTEST
     {
-        esp_err_t err = test_selftest_run();
-        if (err != ESP_OK) {
-            // Decide your policy: halt, reboot, or limp mode.
-            // Here: halt hard (explicit).
-            ESP_LOGE(TAG, "Selftest failed: %s", esp_err_to_name(err));
-            system_faults_set(FAULT_SELFTEST_FAILED);
-
             // Stop everything: simplest is an infinite loop.
             // (You can also esp_restart() if your policy is reboot-on-fault.)
-            for (;;) {
-                vTaskDelay(pdMS_TO_TICKS(1000));
-            }
+    // sécurité : mettre la pin en sortie
+    api_pca_set_dir_async(2, true, pdMS_TO_TICKS(50));
+
+    // blink LED1 : 200 ms ON / 200 ms OFF, démarre à 1
+    api_pca_blink_start_async(2, 200, 200, true, pdMS_TO_TICKS(50));
+
+    // laisser blinker 5 secondes
+    vTaskDelay(pdMS_TO_TICKS(10000));
+
+    // stop blink et éteint la LED
+    api_pca_blink_stop_async(1, pdMS_TO_TICKS(50));
+    api_pca_set_level_async(1, false, pdMS_TO_TICKS(50));
         }
-    }
 #endif
 
     // 5) Application tasks (domain)

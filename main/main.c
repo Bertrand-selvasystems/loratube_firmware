@@ -16,6 +16,8 @@ void app_main(void)
     // Single entry point: boot orchestration lives in initialisation.*
     initialisation_start();
 
+
+
     // app_main is a task in ESP-IDF. If you don't want it lingering around:
     ESP_LOGI(TAG, "app_main(): done -> deleting self");
     vTaskDelete(NULL);
