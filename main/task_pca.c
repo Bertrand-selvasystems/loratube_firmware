@@ -94,6 +94,9 @@ static void task_pca_main(void *arg)
 
     // XFER vers task_i2c
     task_pca_xfer_init(&s_xfer_ctx, g_q_i2c_cmd, &s_xfer);
+    //g_q_i2c_cmd = la queue globale de la task I2C (le “bus owner”).
+    // s_xfer = une structure i2c_xfer_t qui expose probablement des callbacks read/write.
+    // s_xfer_ctx = contexte (handle de queue, timeouts, etc.)
 
     // Init module PCA
     const i2c_to_t init_to = pdMS_TO_TICKS(250);

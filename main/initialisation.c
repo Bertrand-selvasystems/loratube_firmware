@@ -14,7 +14,9 @@
 #include "API_display.h"
 #include "task_i2c.h"
 #include "task_pca.h"
-#include "api_pca.h"
+#include "task_rtc.h"
+#include "API_pca.h"
+#include "API_rtc.h"
 
 #define FEATURE_SELFTEST 1
 
@@ -37,8 +39,13 @@ static void start_service_tasks(void)
     // PCA owner task (depends on I2C owner)
     task_pca_start(CFG_PCA9536_ADDR7);   // ou 0x41, voir plus bas
 
+    task_rtc_start(CFG_PCF8523_ADDR7);
+
     // Bind API -> PCA queue
     api_pca_bind_queue(task_pca_get_queue());
+
+    // Bind API -> RTC queue
+    api_rtc_bind_queue(task_rtc_get_queue());
 
     // Example:
     // task_watchdog_start();
@@ -52,6 +59,29 @@ static void start_application_tasks(void)
     // task_radio_start();
     // task_storage_start();
 }
+
+
+static void rtc_smoke_test(void)
+{
+    rtc_datetime_t dt = {0};
+
+    // 10 essais max (500 ms) pour laisser la task RTC binder la queue et démarrer.
+    for (int i = 0; i < 10; i++) {
+        esp_err_t err = api_rtc_get_datetime(&dt, pdMS_TO_TICKS(50));
+        if (err == ESP_OK) {
+            ESP_LOGI(TAG, "RTC OK: %04u-%02u-%02u %02u:%02u:%02u",
+                     dt.year, dt.month, dt.day, dt.hour, dt.min, dt.sec);
+            return;
+        }
+        ESP_LOGW(TAG, "RTC not ready yet: %s", esp_err_to_name(err));
+        vTaskDelay(pdMS_TO_TICKS(50));
+    }
+
+    // Si on arrive ici : ton binding de queue/notify est pas en place.
+    ESP_LOGE(TAG, "RTC FAILED (API never answered OK).");
+    abort(); // ou return si tu veux continuer en mode dégradé
+}
+
 
 void initialisation_start(void)
 {
@@ -76,6 +106,8 @@ void initialisation_start(void)
     // 4) Optional self-test (DEV only)
 #if FEATURE_SELFTEST
     {
+
+        rtc_smoke_test();
             // Stop everything: simplest is an infinite loop.
             // (You can also esp_restart() if your policy is reboot-on-fault.)
     // sécurité : mettre la pin en sortie
@@ -90,6 +122,7 @@ void initialisation_start(void)
     // stop blink et éteint la LED
     api_pca_blink_stop_async(1, pdMS_TO_TICKS(50));
     api_pca_set_level_async(1, false, pdMS_TO_TICKS(50));
+
         }
 #endif
 

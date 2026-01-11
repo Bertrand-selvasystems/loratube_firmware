@@ -45,11 +45,16 @@
 #define SYS_Q_LOG_DEPTH          8
 // profondeur de la queue pour le port I2C
 #define SYS_Q_I2C_CMD_DEPTH  8
-// profondeur de la queue de commande pour le PCQ
+// profondeur de la queue de commande pour le PCA
 #define SYS_Q_PCA_CMD_DEPTH 8
+// profondeur de la queue de commande pour le RTC
+#define SYS_Q_RTC_CMD_DEPTH 8
 
 #define SYS_TASK_I2C_STACK  2048
 #define SYS_TASK_I2C_PRIO   6
 
 #define SYS_TASK_PCA_STACK  2048
 #define SYS_TASK_PCA_PRIO   7
+
+#define SYS_TASK_RTC_STACK   3072
+#define SYS_TASK_RTC_PRIO    8

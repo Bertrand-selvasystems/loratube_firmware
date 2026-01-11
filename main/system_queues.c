@@ -9,13 +9,14 @@
 #include "system_config.h"
 #include "task_i2c_types.h"
 #include "task_pca_types.h"
+#include "task_rtc_types.h"
 
 static const char *TAG = "SYS_QUEUES";
 
 QueueHandle_t g_q_i2c_cmd;
 QueueHandle_t g_q_log = NULL;
 QueueHandle_t g_q_pca_cmd;
-
+QueueHandle_t g_q_rtc_cmd;
 
 esp_err_t system_queues_init(void)
 {
@@ -31,6 +32,10 @@ esp_err_t system_queues_init(void)
     g_q_pca_cmd = xQueueCreate(SYS_Q_PCA_CMD_DEPTH, sizeof(pca_cmd_t));
     if (!g_q_pca_cmd) goto oom;
 
+    if (g_q_rtc_cmd) return ESP_ERR_INVALID_STATE;
+    g_q_rtc_cmd = xQueueCreate(SYS_Q_RTC_CMD_DEPTH, sizeof(rtc_cmd_t));
+    if (!g_q_rtc_cmd) goto oom;
+
     system_queues_dump();
     return ESP_OK;
 
@@ -43,6 +48,7 @@ void system_queues_deinit(void)
 {
     if (g_q_log) { vQueueDelete(g_q_log); g_q_log = NULL; }
     if (g_q_i2c_cmd) { vQueueDelete(g_q_i2c_cmd); g_q_i2c_cmd = NULL; }
+    if (g_q_rtc_cmd) { vQueueDelete(g_q_rtc_cmd); g_q_rtc_cmd = NULL; }
 }
 
 void system_queues_dump(void)
@@ -57,6 +63,10 @@ void system_queues_dump(void)
     }
     if (!g_q_pca_cmd) {
         ESP_LOGW(TAG, "g_q_pca_cmd=NULL");
+        return;
+    }
+        if (!g_q_rtc_cmd) {
+        ESP_LOGW(TAG, "g_q_rtc_cmd=NULL");
         return;
     }
 
@@ -81,5 +91,12 @@ void system_queues_dump(void)
              (unsigned)SYS_Q_PCA_CMD_DEPTH,
              (unsigned)uxQueueMessagesWaiting(g_q_pca_cmd),
              (unsigned)uxQueueSpacesAvailable(g_q_pca_cmd));
+
+        ESP_LOGI(TAG, "g_q_pca_cmd=%p item=%u depth=%u waiting=%u free=%u",
+             (void*)g_q_rtc_cmd,
+             (unsigned)sizeof(rtc_cmd_t),
+             (unsigned)SYS_Q_RTC_CMD_DEPTH,
+             (unsigned)uxQueueMessagesWaiting(g_q_rtc_cmd),
+             (unsigned)uxQueueSpacesAvailable(g_q_rtc_cmd));
 
 }
