@@ -12,6 +12,7 @@
 
 #include "task_log.h"
 #include "API_display.h"
+#include "task_xfer.h"
 #include "task_i2c.h"
 #include "task_pca.h"
 #include "task_rtc.h"
@@ -27,6 +28,10 @@
 #include "esp_log.h"
 
 static const char *TAG = "INIT";
+static task_i2c_xfer_ctx_t s_i2c_xfer_ctx;
+static i2c_xfer_t          s_i2c_xfer;
+
+const i2c_xfer_t* system_get_i2c_xfer(void) { return &s_i2c_xfer; } // gaté pour rendre accessible aux modules
 
 static void start_service_tasks(void)
 {
@@ -35,6 +40,15 @@ static void start_service_tasks(void)
 
     // I2C dispatcher must exist before any module tries to use I2C.
     task_i2c_start();
+
+    // init proxy handle (la “poignée”)
+    task_xfer_init(&s_i2c_xfer_ctx, // le contexte du proxy (essentiellement la queue vers task_i2c)
+                   g_q_i2c_cmd, // la queue sur laquelle on envoie les i2c_cmd_t vers task_i2c (owner du bus)
+                   &s_i2c_xfer); // i2c_xfer_t est la vtable (au sens "table de fonctions + contexte")
+
+    //s_i2c_xfer = la poignée vtable + ctx
+    //s_i2c_xfer_ctx = essentiellement la queue vers task_i2c
+    //g_q_i2c_cmd queue remplie par i2c_cmd_t opération, longueur à écrire, etc
 
     // PCA owner task (depends on I2C owner)
     task_pca_start(CFG_PCA9536_ADDR7);   // ou 0x41, voir plus bas

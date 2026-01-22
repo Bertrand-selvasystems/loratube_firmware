@@ -1,6 +1,8 @@
 #include "task_pca.h"
 #include "task_pca_types.h"
-#include "task_pca_xfer.h"
+#include "task_xfer.h"
+
+#include "initialisation.h"
 
 #include "module_pca9536.h"   // ton module pur
 #include "system_queues.h"    // g_q_i2c_cmd
@@ -36,13 +38,13 @@ typedef struct {
 
 static QueueHandle_t s_q_pca = NULL;
 
-static task_pca_i2c_xfer_ctx_t s_xfer_ctx;
-static i2c_xfer_t              s_xfer;
 
 static pca9536_t               s_pca;
 static uint8_t                 s_addr7 = 0x00;
 
 static blink_state_t s_blink[4];
+
+static const i2c_xfer_t *xfer; 
 
 void *task_pca_get_queue(void)
 {
@@ -84,23 +86,11 @@ static void task_pca_main(void *arg)
 {
     (void)arg;
 
-    // // Queue commandes PCA
-    // s_q_pca = xQueueCreate(PCA_Q_DEPTH, sizeof(pca_cmd_t));
-    // if (!s_q_pca) {
-    //     ESP_LOGE(TAG, "Failed to create PCA queue");
-    //     vTaskDelete(NULL);
-    //     return;
-    // }
-
-    // XFER vers task_i2c
-    task_pca_xfer_init(&s_xfer_ctx, g_q_i2c_cmd, &s_xfer);
-    //g_q_i2c_cmd = la queue globale de la task I2C (le “bus owner”).
-    // s_xfer = une structure i2c_xfer_t qui expose probablement des callbacks read/write.
-    // s_xfer_ctx = contexte (handle de queue, timeouts, etc.)
+    xfer = system_get_i2c_xfer();
 
     // Init module PCA
     const i2c_to_t init_to = pdMS_TO_TICKS(250);
-    esp_err_t err = pca9536_init(&s_pca, &s_xfer, s_addr7, init_to);
+    esp_err_t err = pca9536_init(&s_pca, xfer, s_addr7, init_to);
     ESP_LOGI(TAG, "pca init: %s", esp_err_to_name(err));
 
     // Option : mettre toutes les pins en output au boot (à toi de décider)

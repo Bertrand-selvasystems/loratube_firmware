@@ -52,7 +52,7 @@ static void task_i2c_main(void *arg)
         }
 
         if (cmd.reply_task) {
-            xTaskNotify(cmd.reply_task, cmd.reply_tag, eSetValueWithOverwrite);
+            xTaskNotifyGive(cmd.reply_task);
         }
     }
 }

@@ -1,4 +1,5 @@
 #include "module_fram.h"
+#include <string.h>
 
 esp_err_t fram_init(fram_t *dev, const i2c_xfer_t *xfer, uint8_t addr7, i2c_to_t to)
 {

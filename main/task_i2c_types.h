@@ -26,7 +26,6 @@ typedef struct {
 
     // Completion routing (caller fills)
     TaskHandle_t reply_task;
-    uint32_t     reply_tag;
 
     // Result storage (caller-owned, static in your policy)
     esp_err_t   *out_result;
